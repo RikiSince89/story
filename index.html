@@ -39,41 +39,43 @@
 
   <style>
     :root {
-      --bg: #0e0c0a;
-      --bg2: #161310;
-      --bg3: #1e1a15;
-      --surface: #242018;
-      --border: rgba(255, 220, 150, 0.1);
-      --border2: rgba(255, 220, 150, 0.22);
-      --gold: #c9963a;
-      --gold2: #e8b86d;
-      --text: #e8e0d0;
-      --text2: #a09080;
-      --text3: #6a5e50;
-      --red: #c0392b;
-      --card-hover: #2a2318;
-      --header-bg: rgba(14, 12, 10, 0.95);
-      --editor-bg: #13110e;
-      --toolbar-bg: #1a1710;
+     --bg2:#0f1610;
+  --bg3:#151e16;
+  --surface:#1b2a1c;
+  --border:rgba(140,200,120,0.1);
+  --border2:rgba(140,200,120,0.22);
+  --gold:#7eb87a;
+  --gold2:#a8d4a4;
+  --text:#ddeedd;
+  --text2:#8aaa88;
+  --text3:#506650;
+  --red:#c0392b;
+  --card-hover:#162018;
+  --header-bg:rgba(9,14,11,0.95);
+  --editor-bg:#0c120d;
+  --toolbar-bg:#111a12;
+  --accent:#c8a951;
+  --accent2:#e8c97a;
     }
 
     [data-theme="light"] {
-      --bg: #faf7f2;
-      --bg2: #f3ede3;
-      --bg3: #ede4d6;
-      --surface: #e8dece;
-      --border: rgba(120, 80, 20, 0.15);
-      --border2: rgba(120, 80, 20, 0.3);
-      --gold: #8b5e1a;
-      --gold2: #a0722a;
-      --text: #2c2218;
-      --text2: #6b5040;
-      --text3: #9a7a60;
-      --red: #c0392b;
-      --card-hover: #ede4d4;
-      --header-bg: rgba(250, 247, 242, 0.95);
-      --editor-bg: #fff8f0;
-      --toolbar-bg: #ede4d6;
+     --bg2:#e8f2e8;
+  --bg3:#daeada;
+  --surface:#cde0cd;
+  --border:rgba(40,100,40,0.15);
+  --border2:rgba(40,100,40,0.28);
+  --gold:#2d6e2d;
+  --gold2:#3a8a3a;
+  --text:#1a2e1a;
+  --text2:#4a6e4a;
+  --text3:#7a9a7a;
+  --red:#c0392b;
+  --card-hover:#dff0df;
+  --header-bg:rgba(244,249,244,0.96);
+  --editor-bg:#f9fff9;
+  --toolbar-bg:#e0ede0;
+  --accent:#8b6914;
+  --accent2:#a07820;
     }
 
     * {
@@ -610,12 +612,13 @@
     }
 
     .card-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px;
-      font-weight: 400;
-      line-height: 1.25;
-      color: var(--text);
-      margin-bottom: 10px;
+     font-family:'Playfair Display',serif;
+  font-size:20px;
+  font-weight:700;
+  line-height:1.28;
+  color:var(--gold2);
+  margin-bottom:10px;
+  letter-spacing:0.01em;
     }
 
     .card-excerpt {
