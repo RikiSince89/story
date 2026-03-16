@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nashif's Stories</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&family=Merriweather:ital,wght@0,300;1,300&family=Lato:wght@300;400&family=Nunito:wght@300;400&family=Libre+Baskerville:ital@0;1&display=swap"
+    rel="stylesheet">
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMixkzb1RPBbOg29g9GZSpdOqzb9WyMMA",
+      authDomain: "my-stories-dceba.firebaseapp.com",
+      projectId: "my-stories-dceba",
+      storageBucket: "my-stories-dceba.firebasestorage.app",
+      messagingSenderId: "466295479228",
+      appId: "1:466295479228:web:dde50d6cdd91a30034a9b9"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window._db = {
+      async getAll() {
+        const q = query(collection(db, "stories"), orderBy("date", "desc"));
+        const snap = await getDocs(q);
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      },
+      async add(data) { const r = await addDoc(collection(db, "stories"), data); return r.id; },
+      async update(id, d) { await updateDoc(doc(db, "stories", id), d); },
+      async remove(id) { await deleteDoc(doc(db, "stories", id)); }
+    };
+    window._firebaseReady = true;
+    document.dispatchEvent(new Event("firebase-ready"));
+  </script>
+
+  <style>
+    :root {
+      --bg: #0e0c0a;
+      --bg2: #161310;
+      --bg3: #1e1a15;
+      --surface: #242018;
+      --border: rgba(255, 220, 150, 0.1);
+      --border2: rgba(255, 220, 150, 0.22);
+      --gold: #c9963a;
+      --gold2: #e8b86d;
+      --text: #e8e0d0;
+      --text2: #a09080;
+      --text3: #6a5e50;
+      --red: #c0392b;
+      --card-hover: #2a2318;
+      --header-bg: rgba(14, 12, 10, 0.95);
+      --editor-bg: #13110e;
+      --toolbar-bg: #1a1710;
+    }
+
+    [data-theme="light"] {
+      --bg: #faf7f2;
+      --bg2: #f3ede3;
+      --bg3: #ede4d6;
+      --surface: #e8dece;
+      --border: rgba(120, 80, 20, 0.15);
+      --border2: rgba(120, 80, 20, 0.3);
+      --gold: #8b5e1a;
+      --gold2: #a0722a;
+      --text: #2c2218;
+      --text2: #6b5040;
+      --text3: #9a7a60;
+      --red: #c0392b;
+      --card-hover: #ede4d4;
+      --header-bg: rgba(250, 247, 242, 0.95);
+      --editor-bg: #fff8f0;
+      --toolbar-bg: #ede4d6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background .3s, color .3s;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--gold);
+      border-radius: 3px;
+    }
+
+    /* HEADER */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--gold2);
+      cursor: pointer;
+    }
+
+    .logo span {
+      color: var(--text3);
+      font-style: normal;
+      font-size: 14px;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      margin-left: 6px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: .08em;
+      color: var(--text2);
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: color .2s;
+      border: none;
+      background: none;
+      font-family: 'Jost', sans-serif;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--gold2);
+    }
+
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border2);
+      background: none;
+      cursor: pointer;
+      color: var(--gold2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all .2s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface);
+    }
+
+    .admin-btn {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 7px 18px;
+      border: 1px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      cursor: pointer;
+      font-family: 'Jost', sans-serif;
+      transition: all .2s;
+    }
+
+    .admin-btn:hover,
+    .admin-btn.open {
+      background: var(--gold);
+      color: var(--bg);
+    }
+
+    .conn-badge {
+      font-size: 11px;
+      letter-spacing: .06em;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-right: 8px;
+    }
+
+    .conn-badge.connected {
+      background: rgba(39, 80, 10, .35);
+      color: #97c459;
+      border: 1px solid rgba(99, 153, 34, .3);
+    }
+
+    .conn-badge.disconnected {
+      background: rgba(160, 45, 45, .25);
+      color: #f09595;
+      border: 1px solid rgba(194, 61, 61, .3);
+    }
+
+    .conn-badge.loading {
+      background: rgba(201, 150, 58, .15);
+      color: var(--gold);
+      border: 1px solid rgba(201, 150, 58, .3);
+    }
+
+    /* PAGES */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(201, 150, 58, .06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-ornament {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 120px;
+      font-weight: 300;
+      color: rgba(201, 150, 58, .04);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -60%);
+      pointer-events: none;
+      letter-spacing: -.05em;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .hero-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+      display: block;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(52px, 8vw, 96px);
+      font-weight: 300;
+      line-height: 1.0;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold2);
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--text2);
+      max-width: 460px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-divider {
+      width: 60px;
+      height: 1px;
+      background: var(--gold);
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      justify-content: center;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--gold2);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+
+    /* STORIES SECTION */
+    .stories-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 340px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text3);
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 14px 9px 36px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      outline: none;
+      transition: border-color .2s;
+      border-radius: 2px;
+    }
+
+    .search-input:focus {
+      border-color: var(--gold);
+    }
+
+    .search-input::placeholder {
+      color: var(--text3);
+    }
+
+    .cat-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .cat-btn {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text2);
+      cursor: pointer;
+      font-family: 'Jost', sans-serif;
+      transition: all .2s;
+      border-radius: 2px;
+    }
+
+    .cat-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .cat-btn.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--bg);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    .stories-count {
+      font-size: 12px;
+      color: var(--text3);
+      letter-spacing: .06em;
+    }
+
+    /* FEATURED */
+    .featured-story {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+      cursor: pointer;
+      transition: border-color .25s;
+      background: var(--bg2);
+    }
+
+    .featured-story:hover {
+      border-color: var(--gold);
+    }
+
+    .featured-text {
+      padding: 3rem;
+    }
+
+    .featured-badge {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .featured-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 34px;
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .featured-excerpt {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--text2);
+      margin-bottom: 1.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .featured-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text3);
+      letter-spacing: .05em;
+    }
+
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--text3);
+    }
+
+    .featured-visual {
+      background: var(--bg3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .featured-visual-letter {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 160px;
+      font-weight: 300;
+      font-style: italic;
+      color: rgba(201, 150, 58, .12);
+      line-height: 1;
+      user-select: none;
+    }
+
+    .featured-visual-cat {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      font-size: 10px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--gold);
+      padding: 4px 12px;
+    }
+
+    /* GRID */
+    .stories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .story-card {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      cursor: pointer;
+      transition: all .25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .story-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .3s;
+    }
+
+    .story-card:hover {
+      border-color: var(--border2);
+      background: var(--card-hover);
+    }
+
+    .story-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .card-inner {
+      padding: 1.75rem;
+    }
+
+    .card-cat {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.25;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .card-excerpt {
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--text2);
+      margin-bottom: 1.25rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: .04em;
+    }
+
+    .read-tag {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: .08em;
+    }
+
+    .skel-card {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 1.75rem;
+    }
+
+    .skel-line {
+      height: 12px;
+      margin-bottom: 10px;
+      background: var(--bg3);
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+
+      0%,
+      100% {
+        opacity: .4;
+      }
+
+      50% {
+        opacity: .8;
+      }
+    }
+
+    .empty-state {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 5rem 2rem;
+    }
+
+    .empty-icon {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 64px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--text3);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      font-size: 15px;
+      color: var(--text2);
+      margin-bottom: 6px;
+    }
+
+    .empty-state small {
+      font-size: 13px;
+      color: var(--text3);
+    }
+
+    /* SINGLE STORY */
+    .story-view {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 4rem 2rem 7rem;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      cursor: pointer;
+      margin-bottom: 3rem;
+      transition: color .2s;
+      border: none;
+      background: none;
+      font-family: 'Jost', sans-serif;
+    }
+
+    .back-btn:hover {
+      color: var(--gold);
+    }
+
+    .story-cat-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .story-full-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 400;
+      line-height: 1.12;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+
+    .story-full-meta {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text3);
+      padding: 1rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 3rem;
+      letter-spacing: .05em;
+    }
+
+    .story-body {
+      font-size: 19px;
+      font-weight: 300;
+      line-height: 1.9;
+      color: var(--text);
+    }
+
+    .story-body p {
+      margin-bottom: 1.4em;
+    }
+
+    .story-body p:first-child::first-letter {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4.2em;
+      font-weight: 600;
+      float: left;
+      line-height: .75;
+      margin: .12em .1em 0 0;
+      color: var(--gold2);
+    }
+
+    /* ABOUT */
+    .about-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .about-ornament {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 72px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--gold2);
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+
+    .about-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 46px;
+      font-weight: 300;
+      margin-bottom: .5rem;
+      line-height: 1.1;
+    }
+
+    .about-role {
+      font-size: 13px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 2rem;
+    }
+
+    .divider-line {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .divider-line::before,
+    .divider-line::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-sym {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      color: var(--gold);
+    }
+
+    .about-bio {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 300;
+      line-height: 1.85;
+      color: var(--text2);
+      margin-bottom: 2rem;
+    }
+
+    .about-genres {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2rem;
+    }
+
+    .genre-tag {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border: 1px solid var(--border);
+      color: var(--text3);
+    }
+
+    /* ═══════════════════════════════════════
+   RICH TEXT EDITOR
+═══════════════════════════════════════ */
+    .editor-wrap {
+      border: 1px solid var(--border2);
+      background: var(--editor-bg);
+    }
+
+    .toolbar {
+      background: var(--toolbar-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      align-items: center;
+    }
+
+    .tb-sep {
+      width: 1px;
+      height: 24px;
+      background: var(--border2);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .tb-btn {
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all .15s;
+      flex-shrink: 0;
+      font-family: 'Jost', sans-serif;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .tb-btn:hover {
+      background: var(--border2);
+      color: var(--text);
+    }
+
+    .tb-btn.active {
+      background: var(--gold);
+      color: var(--bg);
+    }
+
+    .tb-btn[title]::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      color: var(--text2);
+      font-size: 10px;
+      padding: 3px 7px;
+      white-space: nowrap;
+      border-radius: 2px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+      border: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    .tb-btn:hover::after {
+      opacity: 1;
+    }
+
+    .tb-select {
+      height: 30px;
+      padding: 0 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-family: 'Jost', sans-serif;
+      outline: none;
+      transition: border-color .15s;
+      max-width: 130px;
+    }
+
+    .tb-select:focus,
+    .tb-select:hover {
+      border-color: var(--gold);
+      color: var(--text);
+    }
+
+    .tb-select option {
+      background: var(--bg3);
+      color: var(--text);
+    }
+
+    .tb-color-wrap {
+      position: relative;
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+
+    .tb-color-btn {
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 2px;
+      transition: background .15s;
+      padding: 4px;
+    }
+
+    .tb-color-btn:hover {
+      background: var(--border2);
+    }
+
+    .color-icon {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1;
+    }
+
+    .color-bar {
+      height: 3px;
+      width: 18px;
+      border-radius: 1px;
+      transition: background .2s;
+    }
+
+    .tb-color-input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .editor-body {
+      min-height: 280px;
+      max-height: 500px;
+      overflow-y: auto;
+      padding: 1.25rem 1.5rem;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.8;
+      outline: none;
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    .editor-body:empty::before {
+      content: attr(data-placeholder);
+      color: var(--text3);
+      pointer-events: none;
+      font-style: italic;
+    }
+
+    .editor-body p {
+      margin-bottom: 0.8em;
+    }
+
+    .editor-body::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .editor-body::-webkit-scrollbar-thumb {
+      background: var(--border2);
+    }
+
+    .editor-footer {
+      padding: 6px 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .word-count {
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: .04em;
+    }
+
+    .editor-hint {
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    /* ADMIN */
+    .admin-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    .admin-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 400;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--text3);
+      margin-bottom: 2rem;
+      letter-spacing: .05em;
+    }
+
+    .login-err {
+      font-size: 13px;
+      color: var(--red);
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 8px;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Jost', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+      outline: none;
+      transition: border-color .2s;
+      border-radius: 0;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: var(--gold);
+    }
+
+    .form-input::placeholder {
+      color: var(--text3);
+    }
+
+    .form-select option {
+      background: var(--bg3);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .mode-label {
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .btn-pub {
+      background: var(--gold);
+      color: var(--bg);
+      border: none;
+      padding: 12px 28px;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+
+    .btn-pub:hover:not(:disabled) {
+      opacity: .85;
+    }
+
+    .btn-pub:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel {
+      background: none;
+      color: var(--text2);
+      border: 1px solid var(--border);
+      padding: 12px 20px;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: .06em;
+    }
+
+    .btn-cancel:hover {
+      border-color: var(--text2);
+    }
+
+    .btn-logout {
+      background: none;
+      color: var(--text3);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      font-family: 'Jost', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-left: auto;
+    }
+
+    .btn-logout:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .admin-list {
+      margin-top: 3rem;
+    }
+
+    .admin-list-head {
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 1rem;
+      padding-bottom: .75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .admin-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .admin-row-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .admin-row-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .admin-row-meta {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 2px;
+      letter-spacing: .04em;
+    }
+
+    .admin-row-cat {
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      flex-shrink: 0;
+    }
+
+    .btn-edit2 {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      padding: 5px 12px;
+      font-size: 11px;
+      font-family: 'Jost', sans-serif;
+      cursor: pointer;
+      letter-spacing: .06em;
+      transition: all .2s;
+    }
+
+    .btn-edit2:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-del {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text3);
+      padding: 5px 12px;
+      font-size: 11px;
+      font-family: 'Jost', sans-serif;
+      cursor: pointer;
+      letter-spacing: .06em;
+      transition: all .2s;
+    }
+
+    .btn-del:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .fb-warning {
+      background: rgba(201, 150, 58, .1);
+      border: 1px solid rgba(201, 150, 58, .3);
+      padding: 14px 20px;
+      margin-bottom: 2rem;
+      font-size: 13px;
+      color: var(--gold2);
+      line-height: 1.6;
+    }
+
+    .fb-warning strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 999;
+      background: var(--gold);
+      color: var(--bg);
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all .3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text3);
+      letter-spacing: .06em;
+    }
+
+    .footer span {
+      color: var(--gold);
+    }
+
+    @media(max-width:768px) {
+      .featured-story {
+        grid-template-columns: 1fr;
+      }
+
+      .featured-visual {
+        display: none;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stats {
+        gap: 2rem;
+      }
+
+      .nav-link {
+        display: none;
+      }
+
+      .conn-badge {
+        display: none;
+      }
+
+      .toolbar {
+        gap: 1px;
+      }
+
+      .tb-select {
+        max-width: 100px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" onclick="showPage('home')">Nashif<span>· Stories</span></a>
+      <nav class="nav">
+        <button class="nav-link active" id="nav-home" onclick="showPage('home')">Stories</button>
+        <button class="nav-link" id="nav-about" onclick="showPage('about')">About</button>
+      </nav>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="conn-badge loading" id="conn-badge">Connecting…</span>
+        <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀</button>
+        <button class="admin-btn" id="admin-nav-btn" onclick="toggleAdmin()">Admin</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-ornament">Stories</div>
+      <div class="hero-content">
+        <span class="hero-label">A collection of tales</span>
+        <h1 class="hero-title">Where words<br>become <em>worlds</em></h1>
+        <div class="hero-divider"></div>
+        <p class="hero-sub">Original stories spanning mystery, romance, folklore and beyond. Written from the heart,
+          shared for the soul.</p>
+        <div class="hero-stats">
+          <div class="stat"><span class="stat-num" id="stat-stories">—</span><span class="stat-label">Stories</span>
+          </div>
+          <div class="stat"><span class="stat-num" id="stat-genres">—</span><span class="stat-label">Genres</span></div>
+          <div class="stat"><span class="stat-num">∞</span><span class="stat-label">Imagination</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="stories-section">
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input class="search-input" id="search-input" placeholder="Search stories, content…" oninput="applyFilters()">
+        </div>
+        <div class="cat-filters" id="cat-filters"></div>
+      </div>
+      <div id="featured-wrap"></div>
+      <div class="section-head">
+        <h2 class="section-title">All Stories</h2>
+        <span class="stories-count" id="stories-count"></span>
+      </div>
+      <div class="stories-grid" id="stories-grid">
+        <div class="skel-card">
+          <div class="skel-line" style="width:30%;margin-bottom:16px"></div>
+          <div class="skel-line" style="width:80%"></div>
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:60%;margin-top:20px"></div>
+        </div>
+        <div class="skel-card">
+          <div class="skel-line" style="width:30%;margin-bottom:16px"></div>
+          <div class="skel-line" style="width:80%"></div>
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:60%;margin-top:20px"></div>
+        </div>
+        <div class="skel-card">
+          <div class="skel-line" style="width:30%;margin-bottom:16px"></div>
+          <div class="skel-line" style="width:80%"></div>
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:60%;margin-top:20px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SINGLE STORY -->
+  <div class="page" id="page-story">
+    <div class="story-view">
+      <button class="back-btn" onclick="showPage('home')">← Back to stories</button>
+      <span class="story-cat-label" id="sv-cat"></span>
+      <h1 class="story-full-title" id="sv-title"></h1>
+      <div class="story-full-meta" id="sv-meta"></div>
+      <div class="story-body" id="sv-body"></div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="page" id="page-about">
+    <div class="about-wrap">
+      <span class="about-ornament">"</span>
+      <h1 class="about-title">The Storyteller</h1>
+      <p class="about-role">Writer · Dreamer · Data Engineer by day</p>
+      <div class="divider-line"><span class="divider-sym">❧</span></div>
+      <p class="about-bio">Stories have always been my escape — from the ordinary, from the expected, from the noise. I
+        write to explore what it means to be human: the longing, the courage, the quiet moments that change everything.
+      </p>
+      <p class="about-bio">By day I work with data pipelines and cloud infrastructure. By night, I build worlds with
+        nothing but words. This collection is where both sides of me meet.</p>
+      <div class="divider-line"><span class="divider-sym">❧</span></div>
+      <div class="about-genres">
+        <span class="genre-tag">Mystery</span><span class="genre-tag">Romance</span>
+        <span class="genre-tag">Folklore</span><span class="genre-tag">Science Fiction</span>
+        <span class="genre-tag">Horror</span><span class="genre-tag">Historical</span>
+        <span class="genre-tag">Slice of Life</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="page" id="page-admin">
+    <div class="admin-wrap">
+
+      <div id="admin-login-section">
+        <h2 class="admin-title" style="font-style:italic;">Enter, Storyteller</h2>
+        <p class="login-subtitle">Admin access required to manage your stories.</p>
+        <div class="fb-warning" id="fb-config-warn" style="display:none">
+          <strong>⚠ Firebase not configured yet</strong>
+          Replace the placeholder values in the HTML with your Firebase config. Stories save to localStorage until then.
+        </div>
+        <p class="login-err" id="login-err">Wrong password. Try again.</p>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="admin-pw" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button class="btn-pub" onclick="doLogin()">Enter →</button>
+        <p style="font-size:12px;color:var(--text3);margin-top:14px;">Default: <strong
+            style="color:var(--gold)">story123</strong> — change before publishing.</p>
+      </div>
+
+      <div id="admin-panel" style="display:none">
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);">
+          <h2 class="admin-title" style="margin:0;padding:0;border:none;">Story Manager</h2>
+          <button class="btn-logout" onclick="doLogout()">Log out</button>
+        </div>
+
+        <div class="fb-warning" id="fb-panel-warn" style="display:none">
+          <strong>⚠ Firebase not configured</strong>
+          Replace placeholder values with your Firebase config to enable cloud storage.
+        </div>
+
+        <span class="mode-label" id="form-mode">New Story</span>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input class="form-input" id="post-title" placeholder="The title of your story…">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Genre / Category</label>
+            <select class="form-select" id="post-cat">
+              <option value="">Select genre…</option>
+              <option>Mystery</option>
+              <option>Romance</option>
+              <option>Folklore</option>
+              <option>Science Fiction</option>
+              <option>Horror</option>
+              <option>Historical</option>
+              <option>Slice of Life</option>
+              <option>Adventure</option>
+              <option>Thriller</option>
+              <option>Fantasy</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ═══════ RICH TEXT EDITOR ═══════ -->
+        <div class="form-group">
+          <label class="form-label">Story</label>
+          <div class="editor-wrap">
+
+            <!-- TOOLBAR -->
+            <div class="toolbar" id="toolbar">
+
+              <!-- Font family -->
+              <select class="tb-select" onchange="execCmd('fontName',this.value);this.blur();" title="Font">
+                <option value="Cormorant Garamond">Cormorant (default)</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="Libre Baskerville">Libre Baskerville</option>
+                <option value="Lato">Lato</option>
+                <option value="Nunito">Nunito</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+              </select>
+
+              <!-- Font size -->
+              <select class="tb-select" style="max-width:68px;" onchange="execCmd('fontSize',this.value);this.blur();"
+                title="Size">
+                <option value="">Size</option>
+                <option value="1">10px</option>
+                <option value="2">13px</option>
+                <option value="3" selected>16px</option>
+                <option value="4">18px</option>
+                <option value="5">24px</option>
+                <option value="6">32px</option>
+                <option value="7">48px</option>
+              </select>
+
+              <div class="tb-sep"></div>
+
+              <!-- Text style -->
+              <button class="tb-btn" id="tb-bold" onclick="fmt('bold')" title="Bold"><b>B</b></button>
+              <button class="tb-btn" id="tb-italic" onclick="fmt('italic')" title="Italic"><i>I</i></button>
+              <button class="tb-btn" id="tb-under" onclick="fmt('underline')" title="Underline"><u>U</u></button>
+              <button class="tb-btn" id="tb-strike" onclick="fmt('strikeThrough')"
+                title="Strikethrough"><s>S</s></button>
+
+              <div class="tb-sep"></div>
+
+              <!-- Colour -->
+              <div class="tb-color-wrap" title="Text Color">
+                <button class="tb-color-btn" onclick="document.getElementById('txt-color').click()">
+                  <span class="color-icon">A</span>
+                  <div class="color-bar" id="txt-color-bar" style="background:#e8b86d"></div>
+                </button>
+                <input type="color" id="txt-color" class="tb-color-input" value="#e8b86d"
+                  oninput="document.getElementById('txt-color-bar').style.background=this.value"
+                  onchange="execCmd('foreColor',this.value)">
+              </div>
+
+              <!-- Highlight -->
+              <div class="tb-color-wrap" title="Highlight">
+                <button class="tb-color-btn" onclick="document.getElementById('hl-color').click()">
+                  <span class="color-icon" style="font-size:11px;">HL</span>
+                  <div class="color-bar" id="hl-color-bar" style="background:#c9963a55"></div>
+                </button>
+                <input type="color" id="hl-color" class="tb-color-input" value="#ffdd99"
+                  oninput="document.getElementById('hl-color-bar').style.background=this.value+'88'"
+                  onchange="execCmd('hiliteColor',this.value)">
+              </div>
+
+              <div class="tb-sep"></div>
+
+              <!-- Alignment -->
+              <button class="tb-btn" onclick="execCmd('justifyLeft')" title="Align Left">≡</button>
+              <button class="tb-btn" onclick="execCmd('justifyCenter')" title="Center"
+                style="font-size:12px;">⊟</button>
+              <button class="tb-btn" onclick="execCmd('justifyRight')" title="Align Right"
+                style="letter-spacing:-1px;">≡</button>
+
+              <div class="tb-sep"></div>
+
+              <!-- Lists -->
+              <button class="tb-btn" onclick="execCmd('insertUnorderedList')" title="Bullet List"
+                style="font-size:12px;">• ≡</button>
+              <button class="tb-btn" onclick="execCmd('insertOrderedList')" title="Numbered List"
+                style="font-size:11px;">1 ≡</button>
+
+              <div class="tb-sep"></div>
+
+              <!-- Heading shortcuts -->
+              <button class="tb-btn" onclick="execCmd('formatBlock','<h2>')" title="Heading"
+                style="font-size:11px;width:34px;">H2</button>
+              <button class="tb-btn" onclick="execCmd('formatBlock','<h3>')" title="Subheading"
+                style="font-size:11px;width:34px;">H3</button>
+              <button class="tb-btn" onclick="execCmd('formatBlock','<p>')" title="Normal text"
+                style="font-size:11px;width:34px;">¶</button>
+
+              <div class="tb-sep"></div>
+
+              <!-- Blockquote -->
+              <button class="tb-btn" onclick="execCmd('formatBlock','<blockquote>')" title="Blockquote"
+                style="font-size:16px;font-family:serif">"</button>
+
+              <!-- Divider -->
+              <button class="tb-btn" onclick="insertHR()" title="Insert divider"
+                style="font-size:12px;width:34px;">—</button>
+
+              <div class="tb-sep"></div>
+
+              <!-- Clear formatting -->
+              <button class="tb-btn" onclick="execCmd('removeFormat')" title="Clear formatting"
+                style="font-size:11px;width:34px;">Ꭿx</button>
+            </div>
+
+            <!-- EDITABLE AREA -->
+            <div class="editor-body" id="editor" contenteditable="true" data-placeholder="Once upon a time…"
+              onkeyup="updateToolbarState();updateWordCount()" onmouseup="updateToolbarState()"
+              onselectionchange="updateToolbarState()" oninput="updateWordCount()">
+            </div>
+
+            <div class="editor-footer">
+              <span class="word-count" id="word-count">0 words</span>
+              <span class="editor-hint">Select text, then click toolbar buttons to format</span>
+            </div>
+          </div>
+        </div>
+        <!-- ═══════ END EDITOR ═══════ -->
+
+        <div style="display:flex;gap:10px;align-items:center;margin-top:4px;">
+          <button class="btn-pub" id="submit-btn" onclick="submitStory()">Publish Story →</button>
+          <button class="btn-cancel" id="cancel-btn" style="display:none" onclick="cancelEdit()">Cancel</button>
+        </div>
+
+        <div class="admin-list">
+          <div class="admin-list-head">Manage Stories</div>
+          <div id="admin-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span>© 2025 Nashif · Stories</span> &nbsp;·&nbsp; Written with <span>♥</span> &nbsp;·&nbsp; Powered by Firebase
+  </footer>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const ADMIN_PW = 'story123';
+    let loggedIn = false, editingId = null, activeCat = 'All', allStories = [];
+
+    // ── Firebase ready ──
+    function onFBReady(cb) { if (window._firebaseReady) { cb(); return; } document.addEventListener('firebase-ready', cb, { once: true }); }
+    function isFBConfigured() { return !document.querySelector('script[type="module"]').textContent.includes('REPLACE_WITH_YOUR_API_KEY'); }
+
+    // ── DB ──
+    const DB = {
+      async getAll() { if (!isFBConfigured()) return getLSStories(); try { return await window._db.getAll(); } catch (e) { setConn('disconnected'); return getLSStories(); } },
+      async add(d) { if (!isFBConfigured()) { addLS(d); return; } try { await window._db.add(d); } catch (e) { addLS(d); } },
+      async update(id, d) { if (!isFBConfigured()) { updateLS(id, d); return; } try { await window._db.update(id, d); } catch (e) { updateLS(id, d); } },
+      async remove(id) { if (!isFBConfigured()) { removeLS(id); return; } try { await window._db.remove(id); } catch (e) { removeLS(id); } }
+    };
+    const LSK = 'nashif_stories_v2';
+    function getLSStories() { try { return JSON.parse(localStorage.getItem(LSK)) || []; } catch { return []; } }
+    function saveLS(d) { localStorage.setItem(LSK, JSON.stringify(d)); }
+    function addLS(d) { const a = getLSStories(); a.unshift({ ...d, id: Date.now().toString() }); saveLS(a); }
+    function updateLS(id, d) { saveLS(getLSStories().map(s => s.id === id ? { ...s, ...d } : s)); }
+    function removeLS(id) { saveLS(getLSStories().filter(s => s.id !== id)); }
+
+    function setConn(s) {
+      const b = document.getElementById('conn-badge');
+      b.className = 'conn-badge ' + s;
+      b.textContent = s === 'connected' ? '● Live' : s === 'disconnected' ? '○ Offline' : 'Connecting…';
+    }
+
+    // ── PAGES ──
+    function showPage(name, id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      ['home', 'about'].forEach(n => { const e = document.getElementById('nav-' + n); if (e) e.classList.toggle('active', n === name); });
+      if (name === 'home') loadAndRender();
+      if (name === 'story' && id) renderStory(id);
+      window.scrollTo(0, 0);
+    }
+
+    // ── HOME ──
+    async function loadAndRender() {
+      onFBReady(async () => {
+        try { allStories = await DB.getAll(); setConn(isFBConfigured() ? 'connected' : 'disconnected'); }
+        catch (e) { allStories = getLSStories(); setConn('disconnected'); }
+        renderHome();
+      });
+    }
+    function renderHome() {
+      const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+      const cats = ['All', ...new Set(allStories.map(s => s.cat).filter(Boolean))];
+      document.getElementById('cat-filters').innerHTML = cats.map(c => `<button class="cat-btn ${activeCat === c ? 'active' : ''}" onclick="setCat('${c}')">${c}</button>`).join('');
+      let filtered = allStories;
+      if (activeCat !== 'All') filtered = filtered.filter(s => s.cat === activeCat);
+      if (q) filtered = filtered.filter(s => s.title.toLowerCase().includes(q) || stripHTML(s.body || '').toLowerCase().includes(q) || (s.cat || '').toLowerCase().includes(q));
+      document.getElementById('stat-stories').textContent = allStories.length;
+      document.getElementById('stat-genres').textContent = new Set(allStories.map(s => s.cat).filter(Boolean)).size;
+      document.getElementById('stories-count').textContent = filtered.length + ' stor' + (filtered.length === 1 ? 'y' : 'ies');
+      const featWrap = document.getElementById('featured-wrap');
+      const featured = (!q && activeCat === 'All') ? (filtered.find(s => s.featured) || filtered[0]) : null;
+      if (featured) {
+        const preview = stripHTML(featured.body || '').slice(0, 300);
+        featWrap.innerHTML = `<div class="featured-story" onclick="showPage('story','${featured.id}')">
+      <div class="featured-text">
+        <span class="featured-badge">✦ Featured Story</span>
+        <h2 class="featured-title">${esc(featured.title)}</h2>
+        <p class="featured-excerpt">${esc(preview)}</p>
+        <div class="featured-meta"><span>${featured.cat || 'Story'}</span><span class="meta-dot"></span><span>${fmtDate(featured.date)}</span><span class="meta-dot"></span><span>${readTime(featured.body)}</span></div>
+      </div>
+      <div class="featured-visual">
+        <div class="featured-visual-letter">${(featured.title[0] || 'S')}</div>
+        <div class="featured-visual-cat">${featured.cat || 'Story'}</div>
+      </div>
+    </div>`;
+      } else featWrap.innerHTML = '';
+      const gridStories = featured ? filtered.filter(s => s.id !== featured.id) : filtered;
+      const grid = document.getElementById('stories-grid');
+      if (!gridStories.length && !featured) { grid.innerHTML = `<div class="empty-state"><div class="empty-icon">"</div><p>No stories found.</p><small>${allStories.length === 0 ? 'Use Admin to publish your first story.' : 'Try a different search or filter.'}</small></div>`; return; }
+      grid.innerHTML = gridStories.map(s => `<div class="story-card" onclick="showPage('story','${s.id}')">
+    <div class="card-inner">
+      <span class="card-cat">${esc(s.cat) || 'Story'}</span>
+      <h3 class="card-title">${esc(s.title)}</h3>
+      <p class="card-excerpt">${esc(stripHTML(s.body || '').slice(0, 180))}</p>
+      <div class="card-footer"><span>${fmtDate(s.date)}</span><span class="read-tag">${readTime(s.body)} →</span></div>
+    </div>
+  </div>`).join('');
+    }
+    function setCat(c) { activeCat = c; renderHome(); }
+    function applyFilters() { renderHome(); }
+
+    // ── SINGLE STORY ──
+    function renderStory(id) {
+      const s = allStories.find(x => x.id === id);
+      if (!s) { showPage('home'); return; }
+      document.getElementById('sv-cat').textContent = s.cat || 'Story';
+      document.getElementById('sv-title').textContent = s.title;
+      document.getElementById('sv-meta').textContent = fmtDate(s.date) + '  ·  ' + readTime(s.body);
+      // render rich HTML directly
+      document.getElementById('sv-body').innerHTML = s.body || '';
+    }
+
+    // ── RICH TEXT EDITOR ──
+    function execCmd(cmd, val) {
+      document.getElementById('editor').focus();
+      document.execCommand(cmd, false, val || null);
+      updateToolbarState();
+    }
+    function fmt(cmd) {
+      document.getElementById('editor').focus();
+      document.execCommand(cmd, false, null);
+      updateToolbarState();
+    }
+    function insertHR() {
+      document.getElementById('editor').focus();
+      document.execCommand('insertHTML', false, '<hr style="border:none;border-top:1px solid rgba(201,150,58,0.3);margin:1.5em 0;">');
+    }
+    function updateToolbarState() {
+      ['bold', 'italic', 'underline', 'strikeThrough'].forEach(cmd => {
+        const map = { bold: 'tb-bold', italic: 'tb-italic', underline: 'tb-under', strikeThrough: 'tb-strike' };
+        const btn = document.getElementById(map[cmd]);
+        if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
+      });
+    }
+    function updateWordCount() {
+      const text = stripHTML(document.getElementById('editor').innerHTML || '').trim();
+      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+      document.getElementById('word-count').textContent = words + ' word' + (words === 1 ? '' : 's');
+    }
+
+    // ── ADMIN ──
+    function toggleAdmin() {
+      const btn = document.getElementById('admin-nav-btn'), pg = document.getElementById('page-admin');
+      if (pg.classList.contains('active')) { showPage('home'); btn.classList.remove('open'); }
+      else { showPage('admin'); btn.classList.add('open'); if (loggedIn) showPanel(); }
+    }
+    function doLogin() {
+      if (document.getElementById('admin-pw').value === ADMIN_PW) { loggedIn = true; document.getElementById('login-err').style.display = 'none'; showPanel(); }
+      else document.getElementById('login-err').style.display = 'block';
+    }
+    function doLogout() {
+      loggedIn = false;
+      document.getElementById('admin-panel').style.display = 'none';
+      document.getElementById('admin-login-section').style.display = 'block';
+      document.getElementById('admin-pw').value = '';
+      showPage('home'); document.getElementById('admin-nav-btn').classList.remove('open');
+    }
+    function showPanel() {
+      document.getElementById('admin-login-section').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+      if (!isFBConfigured()) { document.getElementById('fb-panel-warn').style.display = 'block'; document.getElementById('fb-config-warn').style.display = 'block'; }
+      renderAdminList();
+    }
+
+    async function submitStory() {
+      const title = document.getElementById('post-title').value.trim();
+      const cat = document.getElementById('post-cat').value;
+      const body = document.getElementById('editor').innerHTML.trim();
+      if (!title || !body || body === '<br>') { showToast('Title and story are required.'); return; }
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try {
+        if (editingId) {
+          await DB.update(editingId, { title, cat, body });
+          showToast('Story updated!'); cancelEdit();
+        } else {
+          await DB.add({ title, cat, body, date: new Date().toISOString() });
+          document.getElementById('post-title').value = '';
+          document.getElementById('post-cat').value = '';
+          document.getElementById('editor').innerHTML = '';
+          updateWordCount();
+          showToast('Story published!');
+        }
+        allStories = await DB.getAll(); renderAdminList();
+      } catch (e) { showToast('Error saving.'); console.error(e); }
+      btn.disabled = false; btn.textContent = editingId ? 'Save Changes →' : 'Publish Story →';
+    }
+
+    function editStory(id) {
+      const s = allStories.find(x => x.id === id); if (!s) return;
+      editingId = id;
+      document.getElementById('post-title').value = s.title;
+      document.getElementById('post-cat').value = s.cat || '';
+      document.getElementById('editor').innerHTML = s.body || '';
+      updateWordCount();
+      document.getElementById('form-mode').textContent = 'Editing Story';
+      document.getElementById('submit-btn').textContent = 'Save Changes →';
+      document.getElementById('cancel-btn').style.display = 'inline-block';
+      window.scrollTo(0, 0);
+    }
+    async function deleteStory(id) {
+      if (!confirm('Delete this story permanently?')) return;
+      try { await DB.remove(id); allStories = allStories.filter(s => s.id !== id); renderAdminList(); showToast('Story deleted.'); }
+      catch (e) { showToast('Error deleting.'); console.error(e); }
+    }
+    function cancelEdit() {
+      editingId = null;
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-cat').value = '';
+      document.getElementById('editor').innerHTML = '';
+      updateWordCount();
+      document.getElementById('form-mode').textContent = 'New Story';
+      document.getElementById('submit-btn').textContent = 'Publish Story →';
+      document.getElementById('cancel-btn').style.display = 'none';
+    }
+    function renderAdminList() {
+      const el = document.getElementById('admin-list');
+      if (!allStories.length) { el.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:1rem 0;">No stories yet.</p>'; return; }
+      el.innerHTML = allStories.map(s => `<div class="admin-row">
+    <div class="admin-row-info">
+      <div class="admin-row-title">${esc(s.title)}</div>
+      <div class="admin-row-meta">${fmtDate(s.date)} · ${readTime(s.body)}</div>
+    </div>
+    ${s.cat ? `<span class="admin-row-cat">${esc(s.cat)}</span>` : ''}
+    <button class="btn-edit2" onclick="editStory('${s.id}')">Edit</button>
+    <button class="btn-del"   onclick="deleteStory('${s.id}')">Delete</button>
+  </div>`).join('');
+    }
+
+    // ── THEME ──
+    function toggleTheme() {
+      const html = document.documentElement, isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      document.getElementById('theme-btn').textContent = isDark ? '☾' : '☀';
+      localStorage.setItem('nashif_story_theme', isDark ? 'light' : 'dark');
+    }
+    function initTheme() {
+      const saved = localStorage.getItem('nashif_story_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀' : '☾';
+    }
+
+    // ── UTILS ──
+    function esc(s) { if (!s) return ''; return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function stripHTML(h) { const d = document.createElement('div'); d.innerHTML = h; return d.textContent || ''; }
+    function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); }
+    function readTime(b) { return Math.max(1, Math.round(stripHTML(b || '').split(/\s+/).filter(Boolean).length / 180)) + ' min read'; }
+    function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800); }
+
+    initTheme();
+    loadAndRender();
+  </script>
+</body>
+
+</html>
